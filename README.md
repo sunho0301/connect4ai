@@ -1,0 +1,20 @@
+#Connect 4 game AI
+This project is about building a bot for [connect 4](https://en.wikipedia.org/wiki/Connect_Four) game using Java, and it follows the requirements and restrictions described by a platform called riddles.io.
+###First approach
+The first approach to this project was using a `char[][]` which represents the game board. It would probably be the simplest solution when most people first think of the solution. The bot uses depth-first search algorithm to calculate what would happen at the end of each move, and makes the best move.
+
+An update on the board is given by a `String` which represents the whole board. Rather than reading the whole `String` to see which position has been updated, I used an `int[]` to store current levels of each column in the board. By only storing potential positions to be updated, the handler can only check specific characters in the `String`. After updating the board, the bot uses depth-first search and finds the next move it should make.
+
+This approach simply works when there are enough resources to handle this algorithm. In reality, this approach is very costly because everytime we recursively call the dfs method, cases we have to check multiplies. In early searches, it mostly multiplies by 7, and it also redundantly checks cases which have been searched before.
+
+###Second approach
+After researching, I found some good ways to improve the performance. I found out bit manipulation could optimize the algorithm, and using a `BitSet` to store the board information was an option. By manipulating bits, it could check vertical, horizontal, and 2 diagonal moves more efficiently everytime we calculate how good a move is. But, I realized it would be more efficient to use a `long` to keep track of the board. It is more lightweight and quicker since it is a primitive data type. The board shape of connect 4 game will unlikely to be changed in near future, and `long`, which has 64 bits, is good enough to store 42 positions(6*7) in the board. Each bit in the `long` represents a specific position in the board and it can assess the information we need by manipulating bits.
+
+To avoid checking cases redundantly, I utilized dynamic programming by implementing a [transposition table](https://en.wikipedia.org/wiki/Transposition_table) to memorize cases that have been searched before. So when a case has been searched before, we can just use the value that has been already calculated. In addition to the transposition table, I used [alpha-beta pruning](https://en.wikipedia.org/wiki/Alpha%E2%80%93beta_pruning) algorithm which is commonly used for two-player games. 
+
+Despite efforts to improve the performance, it still did not satisfied the time limit specified by the platform. It had exponentially more cases to check in ealier than later, so I came up with a simple trick.
+
+###Third approach
+When you start connect 4 game, it is always better to place your discs in the middle because it gives us the most opportunities. Actually, if you start the game with the middle column and play perfectly, you can always win. So, even though the computer may search all moves, it will end up with choosing the middle column for the first move. And when the computer finds out the best move, it means it searched all 4,531,985,219,092 possible positions when the first request is made. If we just hard code the first move, then we can decrease the number of positions to be explored to 1/7 of that massive number. Actually, optimal moves in early connect 4 game are quite simple, and we can help the bot dramatically by providing early moves.
+
+We can dramatically decrease the number of moves which need to be searched, and it can dramatically increase the space for storing moves after first. So it needs some balance and optimization of hard-coded early moves. With some optimizations in space, bot can instantly handle first 4 moves whether it started first or not. After providing first hard-coded moves, bot can get the answer fast enough to satisfy the time requirement. 
