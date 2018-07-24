@@ -15,6 +15,8 @@ public class BotHandler {
     public static final String MOVE = "move";
     public static final int DEFAULT_WIDTH = 7;
     public static final int DEFAULT_HEIGHT = 6;
+    public static final int BOT_0_DP_VAL = 8;
+    public static final int BOT_1_DP_VAL = 9;
 
     private Bot bot;
     private Scanner sc;
@@ -39,6 +41,7 @@ public class BotHandler {
             if (cur.length() == 0) continue;
             String[] data = cur.split(" ");
             switch (data[0]) {
+                // prioritized ACTION since it is called the most
                 case ACTION:
                     if (data[1].equals(MOVE)) {
                         this.bot.makeMove();
@@ -60,6 +63,8 @@ public class BotHandler {
         }
     }
 
+
+    // handles setting commands by the engine
     private void parseSettings(String type, String val) {
         switch (type) {
             case "timebank":
@@ -79,6 +84,11 @@ public class BotHandler {
                 break;
             case "your_botid":
                 this.status.setBotID(Integer.parseInt(val));
+                if (val.equals("0")) {
+                    this.bot.setDPPos(BOT_0_DP_VAL);
+                } else {
+                    this.bot.setDPPos(BOT_1_DP_VAL);
+                }
                 break;
             case "field_width":
                 this.status.setWidth(Integer.parseInt(val));
@@ -93,6 +103,7 @@ public class BotHandler {
         }
     }
 
+    // handles the update commands by the engine
     private void parseUpdate(String type, String val) {
         switch (type) {
             case "round":

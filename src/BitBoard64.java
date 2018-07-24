@@ -83,24 +83,28 @@ public class BitBoard64 {
 		return this.numMoves;
 	}
 	
+	// updates the board given a row index and a col index
 	public void updateBoard(int row, int col) {
 		this.currentPosition ^= this.mask;
 		this.mask |= (1l << (this.newHeight * col + this.height - 1 - row));
 		++this.numMoves;
 	}
 	
+	// updates the board given a specific position represented by a 'long'
 	public void updateBoard(long newBoard) {
 		this.currentPosition ^= this.mask;
 		this.mask |= newBoard;
 		++this.numMoves;
 	}
 	
+	// removes a specific disc from the board given the specific position represented by a 'long'
 	public void removeDisc(long disc) {
 		this.mask ^= disc;
 		this.currentPosition ^= this.mask;
 		--this.numMoves;
 	}
 	
+	// returns position where the bot is forced to put because it can make the opponent win
 	public long getNonLosingPositions() {
 		long possible = (this.mask + this.bottom) & this.boardMask;
 		long opponentWinning = getWinningPositions(this.currentPosition ^ this.mask);
@@ -115,26 +119,32 @@ public class BitBoard64 {
 		return possible & ~(opponentWinning >> 1);
 	}
 	
+	// returns whether the bot can win in current round
 	public boolean canWin() {
 		return (getWinningPositions(this.currentPosition) & (this.mask + this.bottom) & this.boardMask) != 0;
 	}
 	
+	// returns positions where the bot can win
 	public long getWinningBoard() {
 		return getWinningPositions(this.currentPosition) & (this.mask + this.bottom) & this.boardMask;
 	}
 	
+	// returns the count of winning positions when given move is played
 	public int getBitScore(long move) {
 		return Long.bitCount(getWinningPositions(this.currentPosition | move));
 	}
 	
+	// returns the key used in the transposition table
 	public long getKey() {
 		return this.currentPosition + this.mask;
 	}
 	
+	// returns a 'long' which represents a board with the given column filled
 	public long getFilledCol(int col) {
 		return ((1l << this.height) - 1) << (col * this.newHeight);
 	}
 	
+	// clears the board
 	public void clear() {
 		this.currentPosition = 0l;
 		this.mask = 0l;
@@ -143,6 +153,7 @@ public class BitBoard64 {
 		// and the shape is unlikely to be changed. so handling omitted.
 	}
 	
+	// returns a 'long' which represents winning positions
 	private long getWinningPositions(long pos) {
 		long pos1 = (pos << 1) & (pos << 2) & (pos << 3);
 		long pos2 = (pos << this.newHeight) & (pos << 2 * this.newHeight);
